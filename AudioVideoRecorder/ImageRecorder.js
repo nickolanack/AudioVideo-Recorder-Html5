@@ -2,7 +2,8 @@
  * ImageRecorder, and CameraRecorder 
  * 
  * 
- * Example:
+ * Example: this example will cause the browser to confirm (with the client) that the page can access the video camera.
+ *
  * 
  * 		var recorder;
  * 		(recorder=new CameraRecorder()).addEvent('onCreatedRecorder',function(){
@@ -26,9 +27,6 @@
 					//could upload to server
 					
 			});
-
-				
-				
 		});			
  * 
  * 
