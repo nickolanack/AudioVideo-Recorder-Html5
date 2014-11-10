@@ -4,12 +4,56 @@ var ImageRecorder = new Class({
 	_initialize:function(stream){
 		var me=this;
 		me.stream=stream;
+		me.video=new Element('video', {autoplay:true});
+		me.video.src=(window.URL || window.webkitURL).createObjectURL(me.stream);
 		me.fireEvent('onCreatedRecorder');
 	},
+	
 	getVideoStream:function(){
 		var me=this;
 		return me.stream;
-	}
+	},
+	getVideoElement:function(){
+		var me=this;
+		return me.video;
+	},
+	getImageUrl:function(format, quality){
+		var me=this;
+		var canvas=new Element('canvas',{width:me.video.videoWidth, height:me.video.videoHeight});
+		
+		var ctx = canvas.getContext('2d');
+		ctx.drawImage(me.video, 0, 0);
+		ctx.scale(-1,1); //mirror on x. seems more natural
+		if((['image/png', 'img/jpeg', 'img/webp']).indexOf(format)>=0){
+			
+			return canvas.toDataURL(format, (quality>0)?quality:1);
+
+		}else{
+			return canvas.toDataURL('image/png');
+		}
+		
+		
+	},
+	getImageBlob:function(format, quality){
+		
+		var me=this;
+		var url=me.getImageUrl(format, quality);
+		var byteString = atob(url.split(',')[1]);
+
+		// separate out the mime component
+		var mimeString = url.split(',')[0].split(':')[1].split(';')[0];
+		// write the bytes of the string to an ArrayBuffer
+		var ab = new ArrayBuffer(byteString.length);
+		var ia = new Uint8Array(ab);
+		for (var i = 0; i < byteString.length; i++) {
+			ia[i] = byteString.charCodeAt(i);
+		}
+
+		// write the ArrayBuffer to a blob, and you're done
+		var blob=new Blob([ab],{type:mimeString});
+
+		return blob;
+	},
 });
 
 
