@@ -103,19 +103,7 @@ var AudioRecorder = new Class({
 		me.fireEvent('onRecordClear');
 	},
 	
-	
 
-	getAudioBlob:function(options){
-		var me=this;		
-		return me._getAudioBlob(options);
-	},
-
-	getMonoAudioBlob:function(options){
-		var me=this;
-		return me._getMonoAudioBlob(options);
-	},
-	
-	
 	
 	enableLoopback:function(){
 		var me=this;
@@ -154,7 +142,7 @@ var AudioRecorder = new Class({
 		me.recLength += data[0].length;
 	},
 
-	_getAudioBlob:function(options){
+	getAudioBlob:function(options){
 		var me=this;
 		var bufferL = me._mergeBuffers(me.recBuffersL, me.recLength);
 		var bufferR = me._mergeBuffers(me.recBuffersR, me.recLength);
@@ -168,7 +156,7 @@ var AudioRecorder = new Class({
 		return audioBlob;
 	},
 
-	_getMonoAudioBlob:function(options){
+	getMonoAudioBlob:function(options){
 		var me=this;
 		var bufferL = me._mergeBuffers(me.recBuffersL, me.recLength);
 		
@@ -212,18 +200,8 @@ var AudioRecorder = new Class({
 		return result;
 	},
 
-	_floatTo16BitPCM:function(output, offset, input){
-		for (var i = 0; i < input.length; i++, offset+=2){
-			var s = Math.max(-1, Math.min(1, input[i]));
-			output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-		}
-	},
 
-	_writeString:function(view, offset, string){
-		for (var i = 0; i < string.length; i++){
-			view.setUint8(offset + i, string.charCodeAt(i));
-		}
-	},
+	
 
 	
 	/**
@@ -293,16 +271,23 @@ var AudioRecorder = new Class({
 			
 		var buffer = new ArrayBuffer(44 + samples.length * 2);
 		var view = new DataView(buffer);
+		
+		
+		var _text=function(data, start, string){
+			for(var i=0;i<string.length;i++){
+				data.setUint8(start+i, string.charCodeAt(i));
+			}
+		};
 			
 
 		/* RIFF identifier */
-		me._writeString(view, 0, 'RIFF');
+		_text(view, 0, 'RIFF');
 		/* file length */
 		view.setUint32(4, 32 + samples.length * 2, true);
 		/* RIFF type */
-		me._writeString(view, 8, 'WAVE');
+		_text(view, 8, 'WAVE');
 		/* format chunk identifier */
-		me._writeString(view, 12, 'fmt ');
+		_text(view, 12, 'fmt ');
 		/* format chunk length */
 		view.setUint32(16, 16, true);
 		/* sample format (raw) */
@@ -318,11 +303,15 @@ var AudioRecorder = new Class({
 		/* bits per sample */
 		view.setUint16(34, 16, true);
 		/* data chunk identifier */
-		me._writeString(view, 36, 'data');
+		_text(view, 36, 'data');
 		/* data chunk length */
 		view.setUint32(40, samples.length * 2, true);
 
-		me._floatTo16BitPCM(view, 44, samples);
+		var offset=44;
+		for (var i = 0; i < samples.length; i++, offset+=2){
+			var s = Math.max(-1, Math.min(1, samples[i]));
+			view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+		}
 
 		return view;
 	}	
