@@ -193,7 +193,7 @@ var VideoRecorder = new Class({
 				if(me._audioRecorder){
 					
 					me._wsVideo.send('begin audioupload -mime wav');
-					me._wsVideo.send(me._audioRecorder.getMonoAudioBlob({sampleRate:11025})); //this is pretty low quality audio but I don't want uploading to take too long.
+					me._wsVideo.send(me._audioRecorder.getAudioBlob({sampleRate:11025})); //this is pretty low quality audio but I don't want uploading to take too long.
 					me._wsVideo.send("end");
 					
 				}
