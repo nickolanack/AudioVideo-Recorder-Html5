@@ -269,7 +269,11 @@ var AudioRecorder = new Class({
 			config.sampleRate=me.sampleRate; //can't upsample
 		}
 			
-		var buffer = new ArrayBuffer(44 + samples.length * 2);
+		var ch=config.mono?2:1;
+		var bitps=16;
+		var byteps=(bitps/8)*ch;
+		
+		var buffer = new ArrayBuffer(44 + samples.length * ch);
 		var view = new DataView(buffer);
 		
 		
@@ -279,11 +283,12 @@ var AudioRecorder = new Class({
 			}
 		};
 			
+		
 
 		/* RIFF identifier */
 		_text(view, 0, 'RIFF');
 		/* file length */
-		view.setUint32(4, 32 + samples.length * 2, true);
+		view.setUint32(4, 32 + samples.length * ch, true);
 		/* RIFF type */
 		_text(view, 8, 'WAVE');
 		/* format chunk identifier */
@@ -297,15 +302,15 @@ var AudioRecorder = new Class({
 		/* sample rate */
 		view.setUint32(24, config.sampleRate, true);
 		/* byte rate (sample rate * block align) */
-		view.setUint32(28, config.sampleRate * 4, true);
+		view.setUint32(28, config.sampleRate * byteps, true);
 		/* block align (channel count * bytes per sample) */
-		view.setUint16(32, 4, true);
+		view.setUint16(32, byteps, true);
 		/* bits per sample */
 		view.setUint16(34, 16, true);
 		/* data chunk identifier */
 		_text(view, 36, 'data');
 		/* data chunk length */
-		view.setUint32(40, samples.length * 2, true);
+		view.setUint32(40, samples.length * ch, true);
 
 		var offset=44;
 		for (var i = 0; i < samples.length; i++, offset+=2){
