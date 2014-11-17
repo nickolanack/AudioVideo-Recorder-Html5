@@ -316,7 +316,7 @@ var AudioRecorder = new Class({
 		for (var i = 0; i < samples.length; i++, offset+=2){
 			var s = Math.max(-1, Math.min(1, samples[i]));
 			try{
-			view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+				view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
 			}catch(e){
 				console.log(e);
 			}
