@@ -269,7 +269,7 @@ var AudioRecorder = new Class({
 			config.sampleRate=me.sampleRate; //can't upsample
 		}
 			
-		var ch=config.mono?2:1;
+		var ch=config.mono?1:2;
 		var bitps=16;
 		var byteps=(bitps/8)*ch;
 		
